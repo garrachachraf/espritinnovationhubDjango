@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -13,21 +14,26 @@ def is_esprit_email(value):
 
 
 class Student(models.Model):
-    nom = models.CharField('Prénom', max_length=30)
-    prenom = models.CharField('Nom',max_length=30)
-    email = models.EmailField('Email', validators=[is_esprit_email])
+    #nom = models.CharField('Prénom', max_length=30)
+    #prenom = models.CharField('Nom',max_length=30)
+    #email = models.EmailField('Email', validators=[is_esprit_email])
+    user = models.OneToOneField(User, default=None, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.nom
+        return self.user.username
 
 
 class Coach(models.Model):
-    nom = models.CharField('Prénom', max_length=30)
+    """nom = models.CharField('Prénom', max_length=30)
     prenom = models.CharField('Nom', max_length=30)
     email = models.EmailField('Email', validators=[is_esprit_email])
 
     def __str__(self):
-        return self.nom
+        return self.nom"""
+    user = models.OneToOneField(User, default=None, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
 
 
 class Project(models.Model):
@@ -80,7 +86,7 @@ class MembershipInProject(models.Model):
     time_allocated_by_member = models.IntegerField('Temps alloué par le membre')
 
     def __str__(self):
-        return 'Membre ' + self.etudiant.nom
+        return 'Membre ' + self.etudiant.user.username
 
     class Meta:
         unique_together = ("projet", "etudiant")

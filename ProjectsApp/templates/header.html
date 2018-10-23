@@ -18,6 +18,21 @@
                 <a class="nav-link" href="{% url 'create' %}">Add Proposal</a>
               </li>
             </ul>
+               {% if user.is_authenticated %}
+                   Welcome {{ user.username }} !
+                   <form class="form-inline my-2 my-lg-0" action="{% url 'logout' %}" method="post">
+                       {% csrf_token %}
+                        <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Logout</button>
+                   </form>
+
+               {% else %}
+               <form class="form-inline my-2 my-lg-0" action="{% url 'authentificate' %}" method="post">
+                {% csrf_token %}
+                   <input class="form-control mr-sm-2" type="text" placeholder="username" aria-label="Username" name="username">
+                   <input class="form-control mr-sm-2" type="password" placeholder="password" aria-label="Password" name="password">
+                   <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+                </form>
+              {% endif %}
           </div>
         </nav>
     </div>

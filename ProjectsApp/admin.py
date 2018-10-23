@@ -37,5 +37,6 @@ class CoachAdmin(admin.ModelAdmin):
     fields = (('nom', 'prenom'), 'email')
     ordering = ['prenom']
 
-admin.site.register(Coach, CoachAdmin)
+admin.site.register(Coach)
+admin.site.register(Student)
 admin.site.register(Project, ProjectAdmin)
