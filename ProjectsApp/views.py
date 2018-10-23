@@ -1,7 +1,10 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
+from django.urls import reverse
+
+from ProjectsApp.forms import AddProjectForm
 from ProjectsApp.models import *
 
 
@@ -30,6 +33,18 @@ def edit_project(request, pId):
     return HttpResponse("You're editing the project having ID: {}".format(pId))
 
 def add_project(request):
-    return HttpResponse("You're adding a project")
+    if request.method == "GET":
+        form = AddProjectForm()
+        return render(request, 'add_project.html', {'form': form})
+    if request.method == "POST":
+        form = AddProjectForm(request.POST)
+        if form.is_valid():
+            postProject = form.save(commit=False)
+            postProject.save()
+            return HttpResponseRedirect(reverse('liste'))
+        else:
+            return render(request, 'add_project.html', {'msg_erreur': 'Erreur lors de la création du projet'})
+
+
 
 
