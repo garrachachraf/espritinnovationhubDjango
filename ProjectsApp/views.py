@@ -3,6 +3,8 @@ from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 from django.urls import reverse
+from django.views import generic
+from django.views.generic import DetailView
 
 from ProjectsApp.forms import AddProjectForm
 from ProjectsApp.models import *
@@ -30,7 +32,15 @@ def project_details(request, pId):
 
 
 def edit_project(request, pId):
-    return HttpResponse("You're editing the project having ID: {}".format(pId))
+    """
+    Methode permettant à un étudiant de éditer son propre projet
+    :param request:
+    :param p_id:
+    :return:
+    """
+    project = get_object_or_404(Project, pk=pId)
+    genForm = AddProjectForm(instance=project)
+    return render(request, 'edit_project.html', {'form': genForm, 'p_id': pId})
 
 def add_project(request):
     if request.method == "GET":
@@ -44,6 +54,55 @@ def add_project(request):
             return HttpResponseRedirect(reverse('liste'))
         else:
             return render(request, 'add_project.html', {'msg_erreur': 'Erreur lors de la création du projet'})
+
+def submit_edition_project(request, p_id):
+    """
+    Méthode pemettant de saouvegarder les modifications apportés par un étudiant
+    sur son propre projet
+    :param request:
+    :param p_id:
+    :return:
+    """
+    project = get_object_or_404(Project, pk=p_id)
+    if request.method == 'POST':
+        genForm = AddProjectForm(request.POST or None, instance=project)
+        if genForm.is_valid():
+            genForm.save()
+            return HttpResponseRedirect(reverse('liste'))
+        else:
+            return HttpResponseRedirect(reverse('liste'))
+    else:
+        return HttpResponseRedirect(reverse('liste'))
+
+class ProjectsListView(generic.ListView):
+    """
+    Usage de classe générique ListView pour lister les projets
+    Redéfinition de la méthode get_queryset afin de restreindre l'accées aux données
+    aux utilisateurs authentifiées (Cas de Coach et d'étudiant
+    """
+    model = Project
+    template_name = 'projects.html'
+    context_object_name = 'projects_list'
+
+    def get_queryset(self):
+        return Project.objects.all()
+
+
+class ProjectDetailView(DetailView):
+    """
+    Usage de la classe générique DetailView pour afficher les détails relatifs à un projet
+    Redéfinition de la méthode get_context_data afin d'envoyer une donnée supplémentaire
+    dans le contexte qui permet de différencier côté template entre un coach et un étudiant
+    """
+    model = Project
+    template_name = 'project_details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetailView, self).get_context_data(**kwargs)
+        project = super(ProjectDetailView, self).get_object()
+        context['project'] = project
+        return context
+
 
 
 

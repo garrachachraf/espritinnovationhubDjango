@@ -34,6 +34,9 @@
                         </ul>
                     </td>
                     <td>{{ project.total_allocated_by_members }}</td>
+                    <td><a href="{% url 'edit' project.id %}">
+                                <button type="button" class="btn btn-info">Edit</button>
+                             </a></td>
                 </tr>
         </tbody>
     </table>
