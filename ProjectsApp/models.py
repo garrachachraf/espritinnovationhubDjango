@@ -75,6 +75,9 @@ class Project(models.Model):
         return sum_invested_by_members['time_allocated_by_member__sum'] or 0
         # Récupération de la valeur à partir du dictionnnaire
 
+    def get_related_members(self):
+        return self.membres.all()
+
     def __str__(self):
         return self.nom_du_projet
 

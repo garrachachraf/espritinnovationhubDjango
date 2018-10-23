@@ -13,5 +13,7 @@ urlpatterns = [
     re_path(r'^projects/(?P<pk>[0-9]+)/$', ProjectDetailView.as_view(), name='details'),
     re_path(r'^authentificate/$', views.authenticate_user, name='authentificate'),
     re_path(r'^logout/$', views.logout_view, name='logout'),
+    re_path(r'^projects/(?P<project_id>[0-9]+)/join/$', views.join_project, name='p_join'),
+    re_path(r'^projects/(?P<project_id>[0-9]+)/validate/$', views.validate_project, name='p_validate'),
 
 ]

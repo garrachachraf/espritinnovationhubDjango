@@ -1,6 +1,9 @@
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
+
 
 # Create your views here.
 from django.urls import reverse
@@ -21,6 +24,7 @@ def list_projects(request):
     output = ', '.join([p.nom_du_projet for p in projects_list])
     return HttpResponse(output)"""
     #return HttpResponse("You're looking list projects")
+
     projects_list = Project.objects.all()
     return render(request, 'projects.html', {'projects_list': projects_list})
 
@@ -32,6 +36,23 @@ def project_details(request, pId):
     #return HttpResponse("You're looking to the project having ID: {}".format(pId))
 
 
+def add_project(request):
+    if request.user.is_authenticated:
+        if request.method == "GET":
+            form = AddProjectForm()
+            return render(request, 'add_project.html', {'form': form})
+        if request.method == "POST":
+            form = AddProjectForm(request.POST)
+            if form.is_valid():
+                postProject = form.save(commit=False)
+                postProject.save()
+                return HttpResponseRedirect(reverse('liste'))
+            else:
+                return render(request, 'add_project.html', {'msg_erreur': 'Erreur lors de la création du projet', 'form':form})
+    else:
+        return HttpResponseForbidden()
+
+
 def edit_project(request, pId):
     """
     Methode permettant à un étudiant de éditer son propre projet
@@ -39,22 +60,13 @@ def edit_project(request, pId):
     :param p_id:
     :return:
     """
-    project = get_object_or_404(Project, pk=pId)
-    genForm = AddProjectForm(instance=project)
-    return render(request, 'edit_project.html', {'form': genForm, 'p_id': pId})
+    if request.user.is_authenticated:
+        project = get_object_or_404(Project, pk=pId)
+        genForm = AddProjectForm(instance=project)
+        return render(request, 'edit_project.html', {'form': genForm, 'p_id': pId})
+    else:
+        return HttpResponseForbidden()
 
-def add_project(request):
-    if request.method == "GET":
-        form = AddProjectForm()
-        return render(request, 'add_project.html', {'form': form})
-    if request.method == "POST":
-        form = AddProjectForm(request.POST)
-        if form.is_valid():
-            postProject = form.save(commit=False)
-            postProject.save()
-            return HttpResponseRedirect(reverse('liste'))
-        else:
-            return render(request, 'add_project.html', {'msg_erreur': 'Erreur lors de la création du projet'})
 
 def submit_edition_project(request, p_id):
     """
@@ -86,7 +98,14 @@ class ProjectsListView(generic.ListView):
     context_object_name = 'projects_list'
 
     def get_queryset(self):
-        return Project.objects.all()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_superuser:
+                return Project.objects.all()
+            else:
+                return Project.objects.filter(est_valide=True)
+        else:
+            return HttpResponseForbidden()
+
 
 
 class ProjectDetailView(DetailView):
@@ -102,7 +121,16 @@ class ProjectDetailView(DetailView):
         context = super(ProjectDetailView, self).get_context_data(**kwargs)
         project = super(ProjectDetailView, self).get_object()
         context['project'] = project
+
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden()
+        else:
+            if self.request.user.is_superuser or (Coach.objects.filter(user=self.request.user).count() > 0):
+                context['is_coach'] = True
+            else:
+                context['is_coach'] = False
         return context
+
 
 
 
@@ -132,4 +160,36 @@ def logout_view(request):
     """
     logout(request)
     return HttpResponseRedirect(reverse('index'))
+
+
+def join_project(request, project_id):
+    """
+    Méthode permettant à un étudiant de joindre un projet
+    :param request:
+    :param project_id:
+    :return:
+    """
+    project = get_object_or_404(Project, pk=project_id)
+    my_student = Student.objects.filter(user=request.user).first()
+    if my_student not in project.get_related_members():
+        project.membershipinproject_set.create(projet=project.pk ,
+                                               etudiant = my_student,
+                                               time_allocated_by_member=1)
+    return HttpResponseRedirect(reverse('liste'))
+
+
+def validate_project(request, project_id):
+    """
+    Méthode permettant à un coach ou un superutilisateur de valider un projet
+    :param request:
+    :param project_id:
+    :return:
+    """
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+    else:
+        project = get_object_or_404(Project, pk=project_id)
+        project.est_valide = True
+        project.save()
+        return HttpResponseRedirect(reverse('liste'))
 
