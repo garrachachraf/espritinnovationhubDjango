@@ -1,0 +1,26 @@
+ {% extends "base.html" %}
+
+    {% block header %}
+
+    <ul class="breadcrumb">
+        <li><a href="{% url 'index' %}">Home</a> <span class="divider">/</span></li>
+    <li class="active">Projects List</li>
+    </ul>
+    {% endblock %}
+    {% block content %}
+            <h1>Liste des projets</h1>
+            {% if projects_list %}
+                <ul>
+                    {% for p in projects_list %}
+                        {% if p %}
+                            <li><a href="{% url 'details' p.id %}">{{ p.nom_du_projet }}</a></li>
+                        {% endif %}
+                    {% empty %}
+                        <p>Aucun projet n'est disponible!</p>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucun projet n'est disponible.</p>
+            {% endif %}
+    {% endblock %}
+    {% block footer %}{% include "footer.html" %}{% endblock %}

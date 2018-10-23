@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block header %}
+         {% include "header.html" %}
+{% endblock header %}
+
+{% block content %}
+
+<h1>Add a project proposal</h1>
+{% if msg_erreur %}<p><strong>{{ msg_erreur }}</strong></p>{% endif %}
+
+<form action="{% url 'submit_edition' p_id %}" method="POST">
+{% csrf_token %}
+    <div class="container">
+         <div class="form-group" >
+
+                <div>
+                    {{ form.as_p }}
+                </div>
+         </div>
+        <input class="btn btn-primary" type="submit" value="Save" />
+    </div>
+</form>
+{% endblock %}
+{% block footer %}
+{% endblock %}
