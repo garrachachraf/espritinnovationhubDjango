@@ -35,24 +35,15 @@
                     </td>
                     <td>{{ project.total_allocated_by_members }}</td>
                     <td>
-                         {% if user == project.createur.user  %}
                              <a href="{% url 'edit' project.id %}">
                                 <button type="button" class="btn btn-info">Edit</button>
                              </a>
-                         {% elif user.is_superuser or is_coach %}
-                             {% if not project.est_valide%}
                                   <a href="{% url 'p_validate' project.id %}">
                                 <button type="button" class="btn btn-info">Validate</button>
                               </a>
-                             {% endif %}
-                         {% else %}
-                              {% if not user.is_superuser %}
                                  <a href="{% url 'p_join' project.id %}">
                                     <button type="button" class="btn btn-info">Join the Team</button>
                                  </a>
-                             {% endif %}
-
-                        {% endif %}
                     </td>
 
                 </tr>
