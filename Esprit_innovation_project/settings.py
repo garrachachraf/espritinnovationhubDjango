@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ProjectsApp',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -133,3 +134,9 @@ Use for mysql pip install mysqlclient==1.3.12
 Use pip install psycopg2 for postgres
 for 
 """
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ]
+}

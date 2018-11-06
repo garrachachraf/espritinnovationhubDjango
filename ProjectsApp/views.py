@@ -1,8 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
 
 
 # Create your views here.
@@ -48,7 +46,9 @@ def add_project(request):
                 postProject.save()
                 return HttpResponseRedirect(reverse('liste'))
             else:
-                return render(request, 'add_project.html', {'msg_erreur': 'Erreur lors de la création du projet', 'form':form})
+                return render(request, 'add_project.html',
+                              {'msg_erreur': 'Erreur lors de la création du projet',
+                               'form':form})
     else:
         return HttpResponseForbidden()
 

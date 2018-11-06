@@ -1,5 +1,6 @@
 from django.urls import path, re_path
 
+from ProjectsApp.api_urls import api_urlpatterns
 from ProjectsApp.views import ProjectDetailView
 from . import views
 
@@ -17,3 +18,6 @@ urlpatterns = [
     re_path(r'^projects/(?P<project_id>[0-9]+)/validate/$', views.validate_project, name='p_validate'),
 
 ]
+
+urlpatterns += api_urlpatterns
+

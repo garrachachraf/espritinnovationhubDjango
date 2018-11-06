@@ -39,7 +39,7 @@
                              <a href="{% url 'edit' project.id %}">
                                 <button type="button" class="btn btn-info">Edit</button>
                              </a>
-                         {% elif user.is_superuser or is_coach %}
+                         {% elif is_coach %}
                              {% if not project.est_valide%}
                                   <a href="{% url 'p_validate' project.id %}">
                                 <button type="button" class="btn btn-info">Validate</button>
